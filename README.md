@@ -1,5 +1,5 @@
 # DAA Assignment 2 — Data Structures
-Student: <Аты-жөні>, Group: <топ>
+Student: ASKAR AZIZ, Group: SE-2521
 GitHub: <сілтеме> (branch main, tag v1.0)
 
 Build & test: `mvn clean test`
