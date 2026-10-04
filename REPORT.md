@@ -40,7 +40,23 @@ return false;
 **Conclusion:** after bubbleUp the whole array satisfies the heap property, so insert keeps MinHeap correct.
 
 ## 3. Plots
-(вставьте: ![W1 time](results/plots/W1_time.png) ... барлық 8 сурет)
+## 3. Plots
+
+### W1 — Random Access
+![W1 time](results/plots/W1_time.png)
+![W1 ops](results/plots/W1_ops.png)
+
+### W2 — Search
+![W2 time](results/plots/W2_time.png)
+![W2 ops](results/plots/W2_ops.png)
+
+### W3 — Insert & Remove
+![W3 time](results/plots/W3_time.png)
+![W3 ops](results/plots/W3_ops.png)
+
+### W4 — Priority Processing (MinHeap)
+![W4 time](results/plots/W4_time.png)
+![W4 ops](results/plots/W4_ops.png)
 
 ## 4. Discussion
 DynamicArray stores int values contiguously, so one 64-byte cache line holds 16 elements and a single memory fetch serves 16 consecutive reads. This spatial locality, together with the hardware prefetcher, makes iteration and contains very fast. get(i) is one address calculation, so it costs exactly 1 step, while MyLinkedList needs about i pointer hops (W1 steps confirm this). Even when both structures perform the same number of steps, as in W2 where both scan n elements, the list is slower. Each node is a separate heap object with a header (12–16 bytes), an int and a reference, so a node takes about 24 bytes versus 4 bytes per array element. Reading the next node depends on the previous load (pointer chasing), so the CPU cannot overlap memory accesses and often waits for cache misses. Nodes are spread across the heap, which defeats prefetching and wastes cache lines. Many small objects also put pressure on the garbage collector, which has to trace and move them. In W3-head the list wins: insertion at index 0 is O(1) with only two pointer updates, whereas the array shifts n elements each time. In W3-middle the list must walk n/2 nodes, so the array's fast contiguous memmove-like shifting often wins despite the same O(n). MyLinkedList is a better choice for frequent insertions/removals at the head with no random access. MinHeap is the right choice for priority scheduling: insert and extractMin are O(log n) and peekMin is O(1), compared with O(n) for finding the minimum in an array or list.
