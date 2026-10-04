@@ -95,4 +95,17 @@ public class MinHeap {
 
     public int size() { return size; }
     public Metrics metrics() { return metrics; }
+
+    /** Floyd: массивтен O(n) уақытта үйінді құру */
+    public void buildHeap(int[] array) {
+        data = new int[Math.max(10, array.length)];
+        size = array.length;
+        for (int i = 0; i < size; i++) {
+            data[i] = array[i];
+            metrics.moves++;
+        }
+        for (int i = size / 2 - 1; i >= 0; i--) {   // соңғы ішкі түйіннен тамырға дейін
+            bubbleDown(i);
+        }
+    }
 }

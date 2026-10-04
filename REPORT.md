@@ -22,10 +22,10 @@ Total space of every structure: Θ(n) (list: with extra node overhead).
 ## 2. Loop Invariant Proofs
 
 ### 2.1 DynamicArray.contains(x)
-```java
+
 for (int i = 0; i < size; i++) if (data[i] == x) return true;
 return false;
-```
+
 **Invariant:** before each iteration with index i, x does not occur in data[0..i-1].
 **Initialization:** i = 0, the range data[0..-1] is empty, so x is not in it.
 **Maintenance:** if the invariant holds before iteration i and data[i] != x, then x is not in data[0..i], which is the invariant for i+1. If data[i] == x, we return true and never reach the next iteration.
@@ -60,3 +60,20 @@ return false;
 
 ## 4. Discussion
 DynamicArray stores int values contiguously, so one 64-byte cache line holds 16 elements and a single memory fetch serves 16 consecutive reads. This spatial locality, together with the hardware prefetcher, makes iteration and contains very fast. get(i) is one address calculation, so it costs exactly 1 step, while MyLinkedList needs about i pointer hops (W1 steps confirm this). Even when both structures perform the same number of steps, as in W2 where both scan n elements, the list is slower. Each node is a separate heap object with a header (12–16 bytes), an int and a reference, so a node takes about 24 bytes versus 4 bytes per array element. Reading the next node depends on the previous load (pointer chasing), so the CPU cannot overlap memory accesses and often waits for cache misses. Nodes are spread across the heap, which defeats prefetching and wastes cache lines. Many small objects also put pressure on the garbage collector, which has to trace and move them. In W3-head the list wins: insertion at index 0 is O(1) with only two pointer updates, whereas the array shifts n elements each time. In W3-middle the list must walk n/2 nodes, so the array's fast contiguous memmove-like shifting often wins despite the same O(n). MyLinkedList is a better choice for frequent insertions/removals at the head with no random access. MinHeap is the right choice for priority scheduling: insert and extractMin are O(log n) and peekMin is O(1), compared with O(n) for finding the minimum in an array or list.
+
+## 5. Bonus B: Floyd's buildHeap
+n separate insert(x) calls cost O(n log n): each insert may bubble up along the whole height log n.
+buildHeap starts from the last internal node (index n/2 - 1) and runs bubble-down towards the root.
+About n/2 nodes are leaves and need no work, n/4 nodes can move 1 level, n/8 nodes 2 levels, and so on.
+The total work is sum(n / 2^(h+1) * h) = O(n). The CSV (results/buildheap.csv) shows fewer comparisons
+for buildHeap, and the gap grows with n (comparisons per element stay almost constant for buildHeap
+but grow like log n for repeated inserts on random data).
+
+## 6. Bonus A: Memory footprint (JOL)
+![Memory](results/plots/memory.png)
+
+DynamicArray and MinHeap store ints in one int[]: 4 bytes per element plus one 16-byte array header,
+and up to 2x unused capacity after doubling. MyLinkedList allocates one Node object per element:
+a 12-byte object header (compressed class pointers), a 4-byte int and a 4-byte reference give 20 bytes,
+which alignment rounds up to 24 bytes. So a list uses about 6 times more memory per element than an array.
+Nodes are also scattered over the heap, which adds to the cache cost and the GC work.

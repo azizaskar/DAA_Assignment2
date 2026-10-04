@@ -42,4 +42,17 @@ class MinHeapTest {
         }
         assertEquals(0, h.size());
     }
+
+    @Test
+    void buildHeapWorks() {
+        Random r = new Random(3);
+        int[] arr = new int[1000];
+        for (int i = 0; i < arr.length; i++) arr[i] = r.nextInt(100);
+        MinHeap h = new MinHeap();
+        h.buildHeap(arr);
+        assertTrue(h.isValidHeap());
+        int[] sorted = arr.clone();
+        Arrays.sort(sorted);
+        for (int v : sorted) assertEquals(v, h.extractMin());
+    }
 }
